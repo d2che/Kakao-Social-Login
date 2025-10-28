@@ -193,7 +193,7 @@ jwt:
   refresh:
     header: X-Refresh-Token
     expiration: 5259400000  # 2달
-  secretKey: vTfT4bFjiaZWnjeikZXutfgX+LmLRB4iP5AN+FUWpTeqGDXgQbXDhYd9j5BA3DcDuyfGp+leNDtiJl2ilmxRjA==
+  secretKey: "test"
 ```
 
 **주의사항:**
