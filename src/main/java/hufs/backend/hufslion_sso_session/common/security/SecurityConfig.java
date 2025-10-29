@@ -15,9 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import hufs.backend.hufslion_sso_session.common.oauth2.CustomOAuth2UserService;
 import hufs.backend.hufslion_sso_session.common.oauth2.OAuth2AuthenticationFailureHandler;
 import hufs.backend.hufslion_sso_session.common.oauth2.OAuth2AuthenticationSuccessHandler;
-import hufs.backend.hufslion_sso_session.common.oauth2.OAuth2UserService;
 import hufs.backend.hufslion_sso_session.member.jwt.filter.FilterExceptionHandler;
 import hufs.backend.hufslion_sso_session.member.jwt.filter.JwtAuthenticationProcessingFilter;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class SecurityConfig {
 	private final FilterExceptionHandler filterExceptionHandler;
 	private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-	private final OAuth2UserService oAuth2UserService;
+	private final CustomOAuth2UserService customOAuth2UserService;
 	private final JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter;
 
 	@Bean
@@ -103,7 +103,7 @@ public class SecurityConfig {
 					.successHandler(oAuth2AuthenticationSuccessHandler)
 					.failureHandler(oAuth2AuthenticationFailureHandler)
 					.userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-						.userService(oAuth2UserService)))
+						.userService(customOAuth2UserService)))
 			.exceptionHandling(exception -> exception
 				.authenticationEntryPoint(filterExceptionHandler)   // 인증 실패 예외 핸들링
 				.accessDeniedHandler(filterExceptionHandler)        // 인가 실패 예외 핸들링

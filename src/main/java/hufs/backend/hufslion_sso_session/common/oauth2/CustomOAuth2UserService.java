@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional
 @Slf4j
-public class OAuth2UserService
+public class CustomOAuth2UserService
 	implements org.springframework.security.oauth2.client.userinfo.OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
 	private final MemberRepository memberRepository;
