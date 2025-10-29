@@ -51,9 +51,6 @@ public class Member extends BaseTimeEntity {
 	@Column(nullable = false, length = 10)
 	private String name;
 
-	@Enumerated(EnumType.STRING)
-	private Type type;
-
 	// Member - RefreshToken, 1:N on Member perspective
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
@@ -61,10 +58,6 @@ public class Member extends BaseTimeEntity {
 
 	public void changeEmail(String newEmail) {
 		this.email = newEmail;
-	}
-
-	public void updateStatus(Type newStatus) {
-		this.type = newStatus;
 	}
 
 	public void updateOauthId(String newOauthId) {
@@ -94,7 +87,6 @@ public class Member extends BaseTimeEntity {
 			", password='" + password + '\'' +
 			", oauthId='" + oauthId + '\'' +
 			", name='" + name + '\'' +
-			", type=" + type +
 			", refreshTokens=" + refreshTokens +
 			", createdAt=" + createdAt +
 			", updatedAt=" + updatedAt +

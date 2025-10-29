@@ -3,6 +3,7 @@ package hufs.backend.hufslion_sso_session.member.controller;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,8 @@ import hufs.backend.hufslion_sso_session.common.exception.UnauthorizedException;
 import hufs.backend.hufslion_sso_session.common.response.ApiResponse;
 import hufs.backend.hufslion_sso_session.common.response.ErrorStatus;
 import hufs.backend.hufslion_sso_session.common.response.SuccessStatus;
+import hufs.backend.hufslion_sso_session.common.security.entity.SecurityMember;
+import hufs.backend.hufslion_sso_session.member.dto.MemberResponseDto;
 import hufs.backend.hufslion_sso_session.member.entity.Member;
 import hufs.backend.hufslion_sso_session.member.jwt.entity.RefreshToken;
 import hufs.backend.hufslion_sso_session.member.jwt.service.JwtService;
@@ -71,5 +74,28 @@ public class MemberController {
 		Map<String, String> newTokens = jwtService.createAccessAndRefreshToken(member);
 
 		return ApiResponse.success(SuccessStatus.TOKEN_REISSUE_SUCCESS, newTokens);
+	}
+
+	@Operation(
+		summary = "내 정보 조회",
+		description = "현재 로그인한 사용자의 정보를 조회합니다. Authorization 헤더에 유효한 액세스 토큰을 포함해야 합니다.",
+		security = @SecurityRequirement(name = "Authorization")
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "내 정보 조회 성공"),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.")
+	})
+	@GetMapping("/me")
+	public ResponseEntity<ApiResponse<MemberResponseDto>> getMyInfo(
+		@AuthenticationPrincipal SecurityMember securityMember) {
+
+		if (securityMember == null) {
+			throw new UnauthorizedException(ErrorStatus.UNAUTHORIZED_INVALID_TOKEN.getMessage());
+		}
+
+		Member member = securityMember.getMember();
+		MemberResponseDto response = MemberResponseDto.from(member);
+
+		return ApiResponse.success(SuccessStatus.MEMBER_INFO_GET_SUCCESS, response);
 	}
 }

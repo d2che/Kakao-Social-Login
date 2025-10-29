@@ -33,72 +33,53 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException {
 
+		log.info("=================================");
 		log.info("=== OAuth2 인증 성공 핸들러 시작 ===");
+		log.info("=================================");
 
 		OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
 
-		log.debug("oauth2User attributes = {}", oauth2User.getAttributes());
+		log.info("OAuth2User attributes: {}", oauth2User.getAttributes());
+		log.info("OAuth2User authorities: {}", oauth2User.getAuthorities());
 
-		// registrationId를 통해 어떤 소셜 로그인인지 확인
-		String registrationId = extractRegistrationId(request);
-		String userNameAttributeName = oauth2User.getName();
+		// CustomOAuth2UserService에서 authorities에 oauthId를 넣어줌
+		String oauthId = oauth2User.getAuthorities().stream()
+			.findFirst()
+			.map(authority -> authority.getAuthority())
+			.orElseThrow(() -> new IllegalStateException("OAuth2User에 권한 정보가 없습니다."));
 
-		log.info("registrationId = {}", registrationId);
-		log.info("userNameAttributeName = {}", userNameAttributeName);
-
-		// OAuthAttributes를 사용해서 올바르게 사용자 정보 추출
-		OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName,
-			oauth2User.getAttributes());
-
-		String socialProvider = attributes.getSocialProvider();
-		String socialId = attributes.getSocialId();
+		log.info("=== 추출된 OAuthId ===");
+		log.info("oauthId: {}", oauthId);
 
 		// 데이터베이스에서 사용자 조회
-		Member member = memberRepository.findByOauthId(socialProvider + "_" + socialId)
+		Member member = memberRepository.findByOauthId(oauthId)
 			.orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
 
-		log.info("조회된 사용자 - ID: {}, Email: {}", member.getId(), member.getEmail());
+		log.info("=== DB 조회된 사용자 ===");
+		log.info("Member ID: {}", member.getId());
+		log.info("Email: {}", member.getEmail());
+		log.info("Name: {}", member.getName());
+		log.info("OAuthId: {}", member.getOauthId());
 
 		// JWT 토큰 생성
-		log.info("토큰 생성 - userId: {}, email: {}", member.getId(), member.getEmail());
+		log.info("=== JWT 토큰 생성 시작 ===");
 		String accessToken = jwtService.createAccessToken(member);
 		String refreshToken = jwtService.createRefreshToken(member.getId());
 
-		log.info("생성된 AccessToken: {}...", accessToken.substring(0, Math.min(50, accessToken.length())));
+		log.info("AccessToken 생성 완료 : {}...", accessToken.substring(0, Math.min(50, accessToken.length())));
+		log.info("RefreshToken 생성 완료 : {}...", refreshToken.substring(0, Math.min(50, refreshToken.length())));
 
 		String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
 			.queryParam("token", accessToken)
 			.queryParam("refresh", refreshToken)
 			.build().toUriString();
 
-		log.info("최종 리다이렉트 URL: {}", targetUrl);
+		log.info("=== 리다이렉트 ===");
+		log.info("리다이렉트 기본 URL: {}", redirectUri);
+		log.info("전체 리다이렉트 URL (토큰 포함, 앞부분): {}...", targetUrl.substring(0, Math.min(100, targetUrl.length())));
+
 		response.sendRedirect(targetUrl);
 
 		log.info("=== OAuth2 인증 성공 핸들러 완료 ===");
-	}
-
-	private String extractRegistrationId(HttpServletRequest request) {
-		// URL에서 registrationId 추출 (예: /oauth2/authorization/naver)
-		String requestUri = request.getRequestURI();
-		if (requestUri.contains("/naver")) {
-			return "naver";
-		} else if (requestUri.contains("/google")) {
-			return "google";
-		} else if (requestUri.contains("/kakao")) {
-			return "kakao";
-		}
-
-		// 세션에서 추출하는 방법도 있음
-		String referer = request.getHeader("Referer");
-		if (referer != null) {
-			if (referer.contains("naver"))
-				return "naver";
-			if (referer.contains("google"))
-				return "google";
-			if (referer.contains("kakao"))
-				return "kakao";
-		}
-
-		return "google"; // 기본값
 	}
 }

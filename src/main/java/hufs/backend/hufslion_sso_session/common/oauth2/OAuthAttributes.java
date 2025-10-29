@@ -5,8 +5,10 @@ import java.util.Map;
 import hufs.backend.hufslion_sso_session.member.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Slf4j
 public class OAuthAttributes {
 	private Map<String, Object> attributes;
 	private String nameAttributeKey;
@@ -69,16 +71,32 @@ public class OAuthAttributes {
 
 	private static OAuthAttributes ofKakao(String registrationId, String userNameAttributeName,
 		Map<String, Object> attributes) {
+		log.info("=== 카카오 응답 파싱 시작 ===");
+		log.info("전체 attributes keys: {}", attributes.keySet());
+		log.info("카카오 사용자 ID: {}", attributes.get("id"));
+
 		Map<String, Object> kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
+		log.info("kakao_account keys: {}", kakaoAccount != null ? kakaoAccount.keySet() : "null");
+
 		Map<String, Object> profile = (Map<String, Object>)kakaoAccount.get("profile");
+		log.info("profile keys: {}", profile != null ? profile.keySet() : "null");
+
+		String nickname = (String)profile.get("nickname");
+		String email = (String)kakaoAccount.get("email");
+		String profileImageUrl = (String)profile.get("profile_image_url");
+		String socialId = String.valueOf(attributes.get("id"));
+
+		log.info("파싱 결과 - nickname: {}, email: {}, profileImageUrl: {}, socialId: {}",
+			nickname, email, profileImageUrl, socialId);
+		log.info("=== 카카오 응답 파싱 완료 ===");
 
 		return OAuthAttributes.builder()
-			.name((String)profile.get("nickname"))
-			.email((String)kakaoAccount.get("email"))
-			.profileImage((String)profile.get("profile_image_url"))
+			.name(nickname)
+			.email(email)
+			.profileImage(profileImageUrl)
 			.attributes(attributes)
 			.socialProvider(registrationId)
-			.socialId(String.valueOf(attributes.get("id")))
+			.socialId(socialId)
 			.nameAttributeKey(userNameAttributeName)
 			.build();
 	}
