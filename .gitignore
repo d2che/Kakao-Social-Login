@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-**/resources/application.yml
+# **/resources/application.yml
 
 session.md
 
