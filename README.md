@@ -16,23 +16,28 @@
 ## 기술 스택
 
 ### Backend
-- **Java 17**
+
+- **Java 21** (LTS - Upgraded from Java 17)
 - **Spring Boot 3.5.7**
 - **Spring Security**
 - **Spring OAuth2 Client**
 - **Spring Data JPA**
 
 ### Authentication & Authorization
+
 - **OAuth2**: 카카오 소셜 로그인
 - **JWT (JJWT 0.11.5)**: 토큰 기반 인증
 
 ### Database
+
 - **H2 Database**: 개발 및 테스트용 인메모리 DB
 
 ### API Documentation
+
 - **Swagger UI (SpringDoc OpenAPI 2.8.9)**
 
 ### Build Tool
+
 - **Gradle**
 
 ## 프로젝트 구조
@@ -113,24 +118,29 @@ src/main/java/hufs/backend/hufslion_sso_session/
 카카오 소셜 로그인을 사용하기 위해서는 먼저 카카오 개발자 센터에서 애플리케이션을 등록해야 합니다.
 
 #### 1-1. 카카오 개발자 센터 접속
+
 1. [카카오 개발자 센터](https://developers.kakao.com/)에 접속합니다.
 2. 카카오 계정으로 로그인합니다.
 
 #### 1-2. 애플리케이션 추가
+
 1. 상단 메뉴에서 **내 애플리케이션**을 클릭합니다.
 2. **애플리케이션 추가하기** 버튼을 클릭합니다.
 3. 앱 이름, 사업자명을 입력하고 저장합니다.
 
 #### 1-3. REST API 키 확인
+
 1. 생성된 애플리케이션을 클릭합니다.
 2. **앱 키** 탭에서 **REST API 키**를 확인하고 복사합니다.
    - 이 키는 `application.yml`의 `client-id`에 입력됩니다.
 
 #### 1-4. 카카오 로그인 활성화
+
 1. 좌측 메뉴에서 **제품 설정 > 카카오 로그인**을 클릭합니다.
 2. **활성화 설정**의 상태를 **ON**으로 변경합니다.
 
 #### 1-5. Redirect URI 설정
+
 1. **카카오 로그인** 페이지에서 **Redirect URI**를 등록합니다.
 2. **Redirect URI 등록하기**를 클릭하고 다음을 입력합니다:
    ```
@@ -139,6 +149,7 @@ src/main/java/hufs/backend/hufslion_sso_session/
 3. 저장 버튼을 클릭합니다.
 
 #### 1-6. 동의 항목 설정
+
 1. 좌측 메뉴에서 **제품 설정 > 카카오 로그인 > 동의항목**을 클릭합니다.
 2. 다음 항목들을 설정합니다:
    - **닉네임**: 필수 동의 또는 선택 동의로 설정
@@ -146,6 +157,7 @@ src/main/java/hufs/backend/hufslion_sso_session/
 3. 각 항목의 **설정** 버튼을 클릭하여 활성화합니다.
 
 #### 1-7. Client Secret 발급 (선택)
+
 1. 좌측 메뉴에서 **제품 설정 > 카카오 로그인 > 보안**을 클릭합니다.
 2. **Client Secret** 섹션에서 **코드 생성** 버튼을 클릭합니다.
 3. 생성된 **Client Secret** 키를 복사합니다.
@@ -155,12 +167,14 @@ src/main/java/hufs/backend/hufslion_sso_session/
 ### 2. 프로젝트 설정
 
 #### 2-1. 프로젝트 클론
+
 ```bash
 git clone [repository-url]
 cd hufslion_sso_session_template
 ```
 
 #### 2-2. application.yml 설정
+
 `src/main/resources/application.yml` 파일을 열어 카카오 앱 정보를 입력합니다.
 
 ```yaml
@@ -170,8 +184,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: {카카오 REST API 키}
-            client-secret: {카카오 Client Secret}
+            client-id: { 카카오 REST API 키 }
+            client-secret: { 카카오 Client Secret }
             redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-name: Kakao
@@ -189,18 +203,20 @@ spring:
 jwt:
   access:
     header: Authorization
-    expiration: 3600000     # 1시간
+    expiration: 3600000 # 1시간
   refresh:
     header: X-Refresh-Token
-    expiration: 5259400000  # 2달
+    expiration: 5259400000 # 2달
   secretKey: "test"
 ```
 
 **주의사항:**
+
 - `client-id`와 `client-secret`은 카카오 개발자 센터에서 발급받은 값으로 교체해야 합니다.
 - `jwt.secretKey`는 운영 환경에서는 환경 변수로 관리하는 것이 안전합니다.
 
 #### 2-3. JWT Secret Key 생성 (선택사항)
+
 보안을 위해 새로운 JWT Secret Key를 생성하려면 다음 코드를 실행하세요:
 
 ```java
@@ -220,14 +236,17 @@ public class SecretKeyGenerator {
 ### 3. 실행 방법
 
 #### 3-1. Gradle을 사용한 실행
+
 ```bash
 ./gradlew bootRun
 ```
 
 #### 3-2. IDE에서 실행
+
 - `HufslionSsoSessionApplication.java` 파일을 실행합니다.
 
 #### 3-3. 실행 확인
+
 애플리케이션이 성공적으로 시작되면 다음 URL들에 접속할 수 있습니다:
 
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
@@ -239,16 +258,20 @@ public class SecretKeyGenerator {
 ## 카카오 로그인 플로우
 
 ### 1. 로그인 시작
+
 사용자가 다음 URL로 접속하면 카카오 로그인 페이지로 리다이렉트됩니다:
+
 ```
 http://localhost:8080/oauth2/authorization/kakao
 ```
 
 ### 2. 카카오 인증 및 콜백
+
 - 사용자가 카카오 계정으로 로그인하고 동의를 완료하면, 카카오는 설정된 Redirect URI로 인증 코드를 전달합니다.
 - Spring Security가 자동으로 인증 코드를 Access Token으로 교환합니다.
 
 ### 3. 사용자 정보 처리 (OAuth2UserService)
+
 `OAuth2UserService.java`에서 다음 작업을 수행합니다:
 
 ```java
@@ -270,6 +293,7 @@ public OAuth2User loadUser(OAuth2UserRequest userRequest) {
 ```
 
 ### 4. 로그인 성공 처리 (OAuth2AuthenticationSuccessHandler)
+
 `OAuth2AuthenticationSuccessHandler.java`에서 JWT 토큰을 생성하고 프론트엔드로 리다이렉트합니다:
 
 ```java
@@ -295,12 +319,14 @@ public void onAuthenticationSuccess(HttpServletRequest request, HttpServletRespo
 ```
 
 ### 5. JWT 토큰 발급
+
 - **Access Token**: 1시간 유효, API 요청 시 `Authorization` 헤더에 포함
 - **Refresh Token**: 2개월 유효, DB에 저장되며 Access Token 갱신에 사용
 
 ## JWT 인증 플로우
 
 ### 1. API 요청 시 인증 (JwtAuthenticationProcessingFilter)
+
 클라이언트가 API를 요청할 때 다음 과정을 거칩니다:
 
 ```java
@@ -322,9 +348,11 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
 ```
 
 ### 2. Access Token 재발급 (/api/v1/member/token-reissue)
+
 Access Token이 만료되었을 때, Refresh Token으로 새로운 토큰을 발급받습니다:
 
 **요청 예시:**
+
 ```http
 GET /api/v1/member/token-reissue HTTP/1.1
 Host: localhost:8080
@@ -332,6 +360,7 @@ X-Refresh-Token: Bearer {refresh_token}
 ```
 
 **응답 예시:**
+
 ```json
 {
   "code": 200,
@@ -346,6 +375,7 @@ X-Refresh-Token: Bearer {refresh_token}
 ## 주요 코드 설명
 
 ### 1. SecurityConfig.java
+
 Spring Security의 전체 보안 설정을 담당합니다.
 
 ```java
@@ -397,11 +427,13 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 ```
 
 **주요 설정:**
+
 - `SessionCreationPolicy.STATELESS`: 세션을 사용하지 않고 JWT로 인증
 - `oauth2Login()`: OAuth2 로그인 활성화
 - `addFilterBefore()`: JWT 인증 필터를 UsernamePasswordAuthenticationFilter 전에 추가
 
 ### 2. OAuthAttributes.java
+
 카카오, 네이버, 구글 등 다양한 OAuth2 제공자의 응답을 통일된 형태로 변환합니다.
 
 ```java
@@ -436,6 +468,7 @@ public Member toEntity() {
 ```
 
 **카카오 응답 구조:**
+
 ```json
 {
   "id": 123456789,
@@ -450,6 +483,7 @@ public Member toEntity() {
 ```
 
 ### 3. JwtService.java
+
 JWT 토큰의 생성, 검증, 정보 추출을 담당합니다.
 
 ```java
@@ -498,6 +532,7 @@ public Optional<String> extractEmail(String accessToken) {
 ```
 
 ### 4. Member.java (회원 엔티티)
+
 소셜 로그인 사용자 정보를 저장하는 엔티티입니다.
 
 ```java
@@ -536,6 +571,7 @@ public class Member extends BaseTimeEntity {
 ```
 
 ### 5. RefreshToken.java
+
 Refresh Token을 DB에 저장하여 관리합니다.
 
 ```java
@@ -566,24 +602,30 @@ public class RefreshToken {
 ## API 엔드포인트
 
 ### 1. 카카오 로그인 시작
+
 ```
 GET /oauth2/authorization/kakao
 ```
+
 카카오 로그인 페이지로 리다이렉트됩니다.
 
 ### 2. 카카오 로그인 콜백
+
 ```
 GET /login/oauth2/code/kakao?code={authorization_code}
 ```
+
 카카오로부터 인증 코드를 받아 자동으로 처리됩니다. (직접 호출 불필요)
 
 ### 3. Access Token 재발급
+
 ```http
 GET /api/v1/member/token-reissue
 X-Refresh-Token: Bearer {refresh_token}
 ```
 
 **응답:**
+
 ```json
 {
   "code": 200,
@@ -598,51 +640,50 @@ X-Refresh-Token: Bearer {refresh_token}
 ## 프론트엔드 연동 가이드
 
 ### 1. 로그인 버튼 구현
+
 ```javascript
 // React 예시
 const handleKakaoLogin = () => {
-  window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
+  window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
 };
 
-return (
-  <button onClick={handleKakaoLogin}>
-    카카오 로그인
-  </button>
-);
+return <button onClick={handleKakaoLogin}>카카오 로그인</button>;
 ```
 
 ### 2. 콜백 처리 및 토큰 저장
+
 ```javascript
 // React 예시 - 리다이렉트 URL: http://localhost:3000?token=xxx&refresh=yyy
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
-  const accessToken = params.get('token');
-  const refreshToken = params.get('refresh');
+  const accessToken = params.get("token");
+  const refreshToken = params.get("refresh");
 
   if (accessToken && refreshToken) {
     // 로컬 스토리지에 저장
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
 
     // URL에서 토큰 제거
-    window.history.replaceState({}, document.title, '/');
+    window.history.replaceState({}, document.title, "/");
   }
 }, []);
 ```
 
 ### 3. API 요청 시 토큰 포함
+
 ```javascript
 // Axios 예시
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: "http://localhost:8080/api",
 });
 
 // 요청 인터셉터: Access Token 자동 포함
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -661,33 +702,34 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem("refreshToken");
 
       try {
         // 토큰 재발급 요청
         const response = await axios.get(
-          'http://localhost:8080/api/v1/member/token-reissue',
+          "http://localhost:8080/api/v1/member/token-reissue",
           {
             headers: {
-              'X-Refresh-Token': `Bearer ${refreshToken}`
-            }
+              "X-Refresh-Token": `Bearer ${refreshToken}`,
+            },
           }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } =
+          response.data.data;
 
         // 새 토큰 저장
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
 
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh Token도 만료된 경우 로그아웃
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
@@ -700,14 +742,15 @@ export default api;
 ```
 
 ### 4. 보호된 API 호출 예시
+
 ```javascript
 // 사용자 정보 조회
 const getUserInfo = async () => {
   try {
-    const response = await api.get('/v1/member/me');
-    console.log('사용자 정보:', response.data);
+    const response = await api.get("/v1/member/me");
+    console.log("사용자 정보:", response.data);
   } catch (error) {
-    console.error('사용자 정보 조회 실패:', error);
+    console.error("사용자 정보 조회 실패:", error);
   }
 };
 ```
@@ -715,6 +758,7 @@ const getUserInfo = async () => {
 ## 보안 고려사항
 
 ### 1. JWT Secret Key 관리
+
 - **개발 환경**: `application.yml`에 하드코딩 가능
 - **운영 환경**: 환경 변수로 관리 필수
   ```bash
@@ -726,39 +770,49 @@ const getUserInfo = async () => {
   ```
 
 ### 2. HTTPS 사용
+
 운영 환경에서는 반드시 HTTPS를 사용하여 토큰이 암호화된 채널을 통해 전송되도록 해야 합니다.
 
 ### 3. Refresh Token 보안
+
 - Refresh Token은 HttpOnly 쿠키에 저장하는 것이 더 안전합니다.
 - 현재 구현은 학습 목적으로 간단하게 구성되어 있습니다.
 
 ### 4. CORS 설정
+
 운영 환경에서는 허용할 도메인을 명확히 지정해야 합니다:
+
 ```java
 config.setAllowedOrigins(Arrays.asList("https://yourdomain.com"));
 ```
 
 ### 5. Client Secret 노출 방지
+
 `application.yml` 파일을 Git에 커밋할 때는 반드시 `.gitignore`에 추가하거나, 환경 변수로 관리하세요.
 
 ## 문제 해결 (Troubleshooting)
 
 ### 1. 카카오 로그인 후 리다이렉트가 안 됨
+
 - 카카오 개발자 센터에서 Redirect URI 설정을 확인하세요.
 - `application.yml`의 `redirect-uri`와 일치하는지 확인하세요.
 
 ### 2. 동의 항목 에러
+
 - 카카오 개발자 센터의 **동의항목** 설정에서 `profile_nickname`과 `account_email`이 활성화되어 있는지 확인하세요.
 
 ### 3. JWT 토큰 검증 실패
+
 - `application.yml`의 `jwt.secretKey`가 올바른지 확인하세요.
 - Access Token의 만료 시간을 확인하세요.
 
 ### 4. H2 Console 접속 안 됨
+
 - `application.yml`에서 `h2.console.enabled: true` 설정을 확인하세요.
 - SecurityConfig에서 H2 Console 경로가 허용되어 있는지 확인하세요.
 
 ### 5. CORS 에러
+
 - `SecurityConfig`의 CORS 설정에서 프론트엔드 URL이 포함되어 있는지 확인하세요.
 
 ## 참고 자료

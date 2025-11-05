@@ -9,9 +9,13 @@ version = '0.0.1-SNAPSHOT'
 description = 'hufslion_sso_session'
 
 java {
+    // Use Java 21 toolchain for compilation and runtime compatibility
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
+    // Explicit source/target compatibility for Gradle and IDEs
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
